@@ -9,11 +9,11 @@ import java.util.List;
 
 public class BookRepository implements Repository {
 
-    public int getBookId(String input) {
+    public int getBookId(String nameBook) {  //Have Test
         int id = 0;
         try (Connection connection = getConnection()) {
             PreparedStatement statement = connection.prepareStatement("select * from dbbook.book where name_book = ?;");
-            statement.setString(1, input);
+            statement.setString(1, nameBook);
             statement.execute();
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
@@ -25,58 +25,54 @@ public class BookRepository implements Repository {
         return id;
     }
 
-    public List<Integer> getAuthorId(int book_id) {
-        List<Integer> authorS_id = new ArrayList<>();
+    public List<Integer> getBooksIdFromAuthorId(int author_id) {  //Have Test
+        List<Integer> bookS_id = new ArrayList<>();
         try (Connection connection = getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("select author_id from dbbook.book_author where book_id = ?;");
-            statement.setInt(1, book_id);
+            PreparedStatement statement = connection.prepareStatement("select book_id from dbbook.book_author where author_id = ?;");
+            statement.setInt(1, author_id);
             statement.execute();
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                authorS_id.add(rs.getInt("author_id"));
+                bookS_id.add(rs.getInt("book_id"));
             }
-//            for (Integer i : authorS_id) {
-//                System.out.println(i);
-//            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return authorS_id;
+        return bookS_id;
     }
 
-    public List<String> getAuthorsFullName(List<Integer> authorS_id){
-        List<String> authorS = new ArrayList<>();
+    public List<Integer> getBooksIdFromGenreId(int genre_id) {  //Have Test
+        List<Integer> bookS_id = new ArrayList<>();
+        try (Connection connection = getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("select book_id from dbbook.book_genre where genre_id = ?;");
+            statement.setInt(1, genre_id);
+            statement.execute();
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                bookS_id.add(rs.getInt("book_id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookS_id;
+    }
 
+    public List<String> getBookName(List<Integer> bookS_id) {   //Have Test
+        List<String> bookS = new ArrayList<>();
 
         try (Connection connection = getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("select * from dbbook.author where author_id = ?;");
-            for (int i = 0; i<authorS_id.size(); i++){
-                statement.setInt(1, authorS_id.get(i));
+            PreparedStatement statement = connection.prepareStatement("select name_book from dbbook.book where book_id = ?;");
+            for (int i = 0; i < bookS_id.size(); i++) {
+                statement.setInt(1, bookS_id.get(i));
                 statement.execute();
                 ResultSet rs = statement.executeQuery();
                 while (rs.next()) {
-                    String fullName = "";
-                    fullName = rs.getString("first_name") + " ";
-                    fullName += rs.getString("last_name") + " ";
-                    fullName += rs.getString("patronymic")+ " ";
-                    authorS.add(fullName);
-//                    authorS.add(rs.getString("first_name"));
-//                    authorS.add(i, rs.getString("last_name"));
-//                    authorS.add(i, rs.getString("patronymic"));
+                    bookS.add(rs.getString("name_book"));
                 }
-            }
-            for (String i : authorS) {
-                System.out.println(i);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return authorS;
-    }
-
-    public static void main(String[] args) {
-        BookRepository q = new BookRepository();
-        q.getAuthorsFullName(q.getAuthorId(q.getBookId("12 Стульев")));
-
+        return bookS;
     }
 }
