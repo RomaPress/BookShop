@@ -6,6 +6,7 @@ import com.dbBook.database.MyConnectionFactory;
 
 public interface Repository {
     default Connection getConnection() {
+
         return MyConnectionFactory.getConnection();
     }
 }
